@@ -1,4 +1,6 @@
 FROM node:12
-RUN yarn create react-app my-app
-RUN cd my-app && yarn add playwright
-RUN cd my-app && yarn build
+RUN yarn create react-app my-react-app
+RUN cd my-react-app && yarn build
+RUN npm install -g @vue/cli && vue create my-vue-app --default
+RUN cd my-vue-app && yarn build
+RUN mkdir -p my-tests && cd my-tests && yarn add playwright
