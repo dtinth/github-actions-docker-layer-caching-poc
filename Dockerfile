@@ -1,2 +1,3 @@
 FROM node:12
-RUN node -p 1
+RUN yarn create react-app my-app
+RUN cd my-app && yarn build
