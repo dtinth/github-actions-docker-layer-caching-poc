@@ -9,11 +9,8 @@ jobs:
     - id: cache-docker
       uses: actions/cache@v1
       with:
-        path: /tmp/docker-save
+        path: /tmp/docker-registry
         key: docker-${{ hashFiles('Dockerfile') }}
-    - run: docker load -i /tmp/docker-save/snapshot.tar || true
-      if: steps.cache-docker.outputs.cache-hit == 'true'
-    - run: docker info
+    - run: docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2
+    - run: npx wait-on tcp:5000 && docker pull localhost:5000/thing && docker tag localhost:5000/thing thing || true
     - run: docker build . -t thing
-    - run: mkdir -p /tmp/docker-save && docker save thing -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
-      if: always() && steps.cache-docker.outputs.cache-hit != 'true'
