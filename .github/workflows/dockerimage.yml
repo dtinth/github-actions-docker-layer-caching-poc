@@ -1,4 +1,4 @@
-# Increase number to trigger CI -> 0
+# Increase number to trigger CI -> 1
 name: Docker Image CI
 on:
   push: {}
