@@ -1,5 +1,5 @@
 # Increase number to trigger CI -> 1
-name: Docker Image CI
+name: The showdown
 on:
   push: {}
 jobs:
