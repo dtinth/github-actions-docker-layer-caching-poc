@@ -6,9 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - run: sudo chmod a+rw -R /var/lib/docker
     - id: cache-docker
       uses: actions/cache@v1
       with:
         path: /var/lib/docker
-        key: var-lib-docker-${{ hashFiles('Dockerfile') }}
+        key: cache-var-lib-docker-${{ hashFiles('Dockerfile') }}
     - run: docker build . -t thing
+    - run: sudo chmod a+rw -R /var/lib/docker
+      if: always()
