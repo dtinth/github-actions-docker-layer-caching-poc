@@ -38,8 +38,8 @@ jobs:
         with:
           path: /tmp/docker-registry
           key: docker-registry-no-buildkit-${{ hashFiles('Dockerfile') }}
-      - run: docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2
-      - run: npx wait-on tcp:5000 && docker pull localhost:5000/thing || true
+      - run: docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
+      - run: docker pull localhost:5000/thing || true
       - run: docker build . -t thing --cache-from=localhost:5000/thing
       - run: docker tag thing localhost:5000/thing && docker push localhost:5000/thing || true
         if: steps.cache.outputs.cache-hit != 'true'
@@ -54,8 +54,7 @@ jobs:
         with:
           path: /tmp/docker-registry
           key: docker-registry-buildkit-${{ hashFiles('Dockerfile') }}
-      - run: docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2
-      - run: npx wait-on tcp:5000
+      - run: docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
       - run: docker build . -t thing --cache-from=localhost:5000/thing --build-arg BUILDKIT_INLINE_CACHE=1
       - run: docker tag thing localhost:5000/thing && docker push localhost:5000/thing || true
         if: steps.cache.outputs.cache-hit != 'true'
