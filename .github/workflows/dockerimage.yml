@@ -9,11 +9,6 @@ jobs:
     - id: cache-docker
       uses: actions/cache@v1
       with:
-        path: /tmp/docker-save
-        key: docker-${{ hashFiles('Dockerfile') }}
-    - run: docker load -i /tmp/docker-save/snapshot.tar || true
-      if: steps.cache-docker.outputs.cache-hit == 'true'
-    - run: docker info
+        path: /var/lib/docker
+        key: var-lib-docker-${{ hashFiles('Dockerfile') }}
     - run: docker build . -t thing
-    - run: mkdir -p /tmp/docker-save && docker save thing -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
-      if: always() && steps.cache-docker.outputs.cache-hit != 'true'
