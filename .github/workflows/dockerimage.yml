@@ -26,7 +26,6 @@ jobs:
         key: docker-save-${{ hashFiles('Dockerfile') }}
     - run: docker load -i /tmp/docker-save/snapshot.tar || true
       if: steps.cache-docker.outputs.cache-hit == 'true'
-    - run: docker info
     - run: docker build . -t thing --cache-from=thing-cache
     - run: docker tag thing thing-cache && mkdir -p /tmp/docker-save && docker save thing-cache -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
       if: always() && steps.cache-docker.outputs.cache-hit != 'true'
@@ -60,3 +59,20 @@ jobs:
       - run: docker build . -t thing --cache-from=localhost:5000/thing --build-arg BUILDKIT_INLINE_CACHE=1
       - run: docker tag thing localhost:5000/thing && docker push localhost:5000/thing || true
         if: steps.cache.outputs.cache-hit != 'true'
+  build_with_gpr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - run: docker pull docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit || true
+      - run: docker build . -t thing --cache-from=docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit
+      - run: docker tag thing docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit && docker push docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit || true
+  build_with_gpr_buildkit:
+    env:
+      DOCKER_BUILDKIT: '1'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - run: docker build . -t thing --cache-from=docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-with-buildkit --build-arg BUILDKIT_INLINE_CACHE=1
+      - run: docker tag thing docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-with-buildkit && docker push docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-with-buildkit || true
