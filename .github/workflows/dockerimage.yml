@@ -10,7 +10,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: /tmp/docker-registry
-        key: docker-${{ hashFiles('Dockerfile') }}
+        key: docker-registry-${{ hashFiles('Dockerfile') }}
     - run: docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2
     - run: npx wait-on tcp:5000 && docker pull localhost:5000/thing && docker tag localhost:5000/thing thing || true
     - run: docker build . -t thing
